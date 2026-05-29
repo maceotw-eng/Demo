@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>四種拆除呈現方式 — 對照 Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e14;--panel:rgba(16,23,32,.82);--line:#1b2734;--line2:#243444;--text:#cdd9e6;--muted:#6b7f93;--cyan:#38e1d6;--steel:#4a6f8c;--amber:#f5a623;--orange:#ff7a2f;--red:#ff3b3b;--ok:#3ad17a;--display:'Chakra Petch',ui-monospace,monospace;--mono:'JetBrains Mono',ui-monospace,Menlo,monospace}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:var(--display);background:var(--bg);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased}
+#app{position:fixed;inset:0}
+#stage{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#13202c 0%,var(--bg) 62%)}
+#c{display:block;width:100%;height:100%}
+header{position:relative;z-index:5;display:flex;align-items:center;gap:1px;background:var(--panel);backdrop-filter:blur(10px);border-bottom:1px solid var(--line2)}
+.brand{padding:12px 20px;border-right:1px solid var(--line)}
+.brand .t{font-weight:700;letter-spacing:.04em;font-size:15px}.brand .s{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.metric{padding:10px 22px;border-right:1px solid var(--line)}
+.metric .lab{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.15em;text-transform:uppercase}
+.metric .val{font-family:var(--mono);font-weight:700;font-size:24px;color:var(--ok)}
+.hint{position:absolute;left:50%;top:80px;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--muted);background:#0d141dcc;border:1px solid var(--line2);padding:6px 12px;border-radius:7px;z-index:4}
+/* 浮動標籤 */
+.lab3d{position:absolute;z-index:4;transform:translate(-50%,-100%);text-align:center;pointer-events:none;white-space:nowrap}
+.lab3d .n{font-size:12.5px;font-weight:600;color:#fff;text-shadow:0 1px 6px #000}
+.lab3d .m{font-family:var(--mono);font-size:10px;color:var(--cyan);margin-top:2px}
+.lab3d .badge{display:inline-block;font-family:var(--mono);font-size:9px;color:var(--muted);border:1px solid var(--line2);background:#0d141dcc;border-radius:20px;padding:1px 8px;margin-bottom:4px}
+/* dock */
+#dock{position:absolute;left:16px;right:16px;bottom:16px;z-index:6;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--line2);border-radius:14px;padding:14px 20px 16px;box-shadow:0 24px 60px -20px #000}
+.ctrls{display:flex;align-items:center;gap:10px;margin-bottom:13px;flex-wrap:wrap}
+.ic{width:42px;height:42px;border-radius:9px;border:1px solid var(--line2);background:#ffffff06;color:var(--text);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:.15s;flex:none}
+.ic:hover{border-color:var(--cyan);color:var(--cyan)}.ic.play{background:var(--cyan);color:#04181a;border-color:var(--cyan);width:50px}
+.ctrl-lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-left:4px}
+.seg{display:flex;gap:1px;background:var(--line);border-radius:9px;overflow:hidden;border:1px solid var(--line2)}
+.seg button{background:#ffffff04;border:0;color:var(--muted);font-family:var(--mono);font-size:11px;padding:0 13px;height:40px;cursor:pointer}.seg button.on{background:var(--cyan);color:#04181a;font-weight:700}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:9px;border-radius:5px;background:linear-gradient(90deg,var(--cyan) 0,var(--cyan) var(--p,0%),#1a2734 var(--p,0%),#1a2734 100%);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--cyan);cursor:grab;box-shadow:0 2px 10px #000a}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--cyan)}
+.ticks{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--mono);font-size:9.5px;color:var(--muted)}
+@media(max-width:760px){.brand .t{font-size:13px}.metric{padding:8px 14px}.metric .val{font-size:18px}.lab3d .n{font-size:11px}}
+</style></head>
+<body><div id="app"><div id="stage"><canvas id="c"></canvas>
+<div class="hint">滑鼠拖曳可旋轉檢視 · 四棟同步、用四種方式拆除</div>
+<div class="lab3d" id="l0"><span class="badge">① 寫實</span><div class="n">由上往下切除</div><div class="m" id="m0">0%</div></div>
+<div class="lab3d" id="l1"><span class="badge">②</span><div class="n">逐漸淡出透明</div><div class="m" id="m1">0%</div></div>
+<div class="lab3d" id="l2"><span class="badge">③</span><div class="n">整棟等比縮小</div><div class="m" id="m2">0%</div></div>
+<div class="lab3d" id="l3"><span class="badge">④</span><div class="n">顏色標示進度</div><div class="m" id="m3">0%</div></div>
+</div>
+<header><div class="brand"><div class="t">四種拆除呈現方式 · 對照</div><div class="s">Demolition Visual Styles · Demo</div></div>
+<div class="metric"><div class="lab">拆除進度</div><div class="val" id="mProg">0%</div></div></header>
+<div id="dock"><div class="ctrls">
+<button class="ic play" id="play">▶</button><button class="ic" id="reset">⟲</button>
+<span class="ctrl-lab">速度</span>
+<div class="seg" id="speed"><button data-s="0.5">0.5×</button><button data-s="1" class="on">1×</button><button data-s="2">2×</button></div>
+<span class="ctrl-lab" style="margin-left:auto">自動環繞</span><button class="ic" id="autorot" style="width:42px">◎</button></div>
+<input type="range" id="time" min="0" max="100" step="0.5" value="0">
+<div class="ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>完成</span></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.localClippingEnabled=true; // 啟用裁切(方法①)
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x0a0e14,0.012);
+const camera=new THREE.PerspectiveCamera(48,1,0.1,1000);
+scene.add(new THREE.HemisphereLight(0xbcd6ff,0x0a0e14,0.9));
+const key=new THREE.DirectionalLight(0xffffff,0.9);key.position.set(25,40,25);scene.add(key);
+const fill=new THREE.DirectionalLight(0x66aaff,0.3);fill.position.set(-25,15,-20);scene.add(fill);
+const grid=new THREE.GridHelper(120,30,0x1d3040,0x14222e);grid.material.transparent=true;grid.material.opacity=0.45;scene.add(grid);
+
+const C_STEEL=new THREE.Color(0x4a6f8c),C_A=new THREE.Color(0xf5a623),C_B=new THREE.Color(0xff7a2f),C_C=new THREE.Color(0xff3b3b);
+function ramp(p){const c=new THREE.Color();if(p<0.5)c.copy(C_A).lerp(C_B,p/0.5);else c.copy(C_B).lerp(C_C,(p-0.5)/0.5);return c;}
+
+// 一棟簡單建築(分層方塊,基座在 y=0)
+function makeBuilding(){
+  const g=new THREE.Group();
+  const mat=new THREE.MeshStandardMaterial({color:C_STEEL.clone(),roughness:.72,metalness:.12,flatShading:true});
+  const tiers=[[7,6,0,6],[5,3.5,6,4.4],[3,2.5,9.5,2.8]]; // [w,h,y0,depth]
+  let maxH=0;
+  tiers.forEach(([w,h,y0,d])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.y=y0+h/2;g.add(m);maxH=Math.max(maxH,y0+h);});
+  // 地基墊
+  const pad=new THREE.Mesh(new THREE.BoxGeometry(8,0.4,8),new THREE.MeshStandardMaterial({color:0x16222e,roughness:1}));
+  pad.position.y=0.2;g.add(pad);
+  g.userData={mat,maxH};
+  return g;
+}
+const X=[-21,-7,7,21];
+const B=X.map((x,i)=>{const g=makeBuilding();g.position.set(x,0,0);scene.add(g);return g;});
+const clip=new THREE.Plane(new THREE.Vector3(0,-1,0),0); // 方法① 裁切平面
+B[0].userData.mat.clippingPlanes=[clip];
+
+function update(pct){
+  const p=pct/100;
+  // ① 由上往下切除:裁切平面下降
+  clip.constant = B[0].userData.maxH*(1-p);
+  B[0].visible = p<1;
+  // ② 淡出
+  const m1=B[1].userData.mat;m1.transparent=true;m1.opacity=Math.max(0,1-p);m1.depthWrite=p<0.05;
+  B[1].visible=p<0.999;
+  // ③ 等比縮小
+  const s=Math.max(0.001,1-p);B[2].scale.set(s,s,s);B[2].visible=p<0.999;
+  // ④ 顏色標示
+  const m3=B[3].userData.mat;
+  if(p<=0){m3.color.copy(C_STEEL);m3.emissive.setRGB(0,0,0);}
+  else{const c=ramp(p);m3.color.copy(c);m3.emissive.copy(c).multiplyScalar(0.3);}
+  B[3].visible=p<0.985;
+  // 數字
+  const t=Math.round(pct)+'%';
+  document.getElementById('mProg').textContent=t;
+  for(let i=0;i<4;i++)document.getElementById('m'+i).textContent=t;
+}
+
+// 標籤投影
+const labs=[0,1,2,3].map(i=>document.getElementById('l'+i));
+const tmp=new THREE.Vector3();
+function placeLabels(){
+  for(let i=0;i<4;i++){
+    tmp.set(X[i],B[i].userData.maxH+2.5,0);
+    if(i===2){const s=Math.max(0.001,1-curr/100);tmp.set(X[i],B[i].userData.maxH*s+2.5,0);} // 跟著縮小
+    if(i===0){tmp.set(X[i],B[0].userData.maxH*(1-curr/100)+2.5,0);} // 跟著切除高度
+    tmp.project(camera);
+    const x=(tmp.x*0.5+0.5)*canvas.clientWidth, y=(-tmp.y*0.5+0.5)*canvas.clientHeight;
+    labs[i].style.left=x+'px';labs[i].style.top=y+'px';
+    labs[i].style.opacity=(tmp.z<1)?1:0;
+  }
+}
+
+// 相機
+let theta=1.15,phi=1.18,radius=62,target=new THREE.Vector3(0,5,0);
+function applyCam(){camera.position.set(target.x+radius*Math.sin(phi)*Math.cos(theta),target.y+radius*Math.cos(phi),target.z+radius*Math.sin(phi)*Math.sin(theta));camera.lookAt(target);}
+let drag=false,lx=0,ly=0;
+canvas.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+addEventListener('pointerup',()=>drag=false);
+addEventListener('pointermove',e=>{if(!drag)return;theta-=(e.clientX-lx)*0.006;phi=Math.max(0.3,Math.min(1.4,phi-(e.clientY-ly)*0.006));lx=e.clientX;ly=e.clientY;});
+canvas.addEventListener('wheel',e=>{e.preventDefault();radius=Math.max(30,Math.min(110,radius+e.deltaY*0.05));},{passive:false});
+
+// 控制
+let curr=0,playing=false,speed=1,autorot=false;
+const slider=document.getElementById('time'),playBtn=document.getElementById('play');
+function set(v){curr=Math.max(0,Math.min(100,v));slider.value=curr;slider.style.setProperty('--p',curr+'%');update(curr);}
+slider.addEventListener('input',()=>set(parseFloat(slider.value)));
+playBtn.onclick=()=>{playing=!playing;if(curr>=100&&playing)set(0);playBtn.textContent=playing?'❚❚':'▶';};
+document.getElementById('reset').onclick=()=>{playing=false;playBtn.textContent='▶';set(0);theta=1.15;phi=1.18;radius=62;};
+document.getElementById('autorot').onclick=function(){autorot=!autorot;this.style.color=autorot?'var(--cyan)':'';this.style.borderColor=autorot?'var(--cyan)':'';};
+document.querySelectorAll('#speed button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#speed button').forEach(x=>x.classList.remove('on'));b.classList.add('on');speed=parseFloat(b.dataset.s);});
+
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;if(canvas.width!==Math.floor(w*devicePixelRatio)){renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}}
+let last=performance.now();
+function loop(now){const dt=(now-last)/1000;last=now;
+  if(playing){curr+=dt*speed*12;if(curr>=100){curr=100;playing=false;playBtn.textContent='▶';}slider.value=curr;slider.style.setProperty('--p',curr+'%');update(curr);}
+  if(autorot&&!drag)theta+=dt*0.15;
+  resize();applyCam();placeLabels();renderer.render(scene,camera);requestAnimationFrame(loop);}
+set(0);applyCam();requestAnimationFrame(loop);
+</script></body></html>
